@@ -6,7 +6,7 @@ A heavily obfuscated `Windows` based `ASP` web shell generation tool utilizing t
 
 ## Installation
 
-Make sure that you have `Python3` and `Jinja2` installed. Install the `pip` requirements with the following command:
+Make sure that you have `Python3` with the `Jinja2` & `pyperclip` `pip` packages installed. Install the `pip` requirements with the following command:
 
 ```bash
 pip3 install -r requirements.txt
