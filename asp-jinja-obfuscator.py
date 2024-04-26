@@ -35,10 +35,41 @@ def add_random_newlines(template, max_newlines=5):
 
     # Add extra newlines to the selected lines
     for index in newline_positions:
-        lines[index] += '\n' * random.randint(1, 5)  # Add between 1 and 5 newlines
+        lines[index] += '\n' * random.randint(1, 50)  # Add between 1 and 50 newlines
     
     # Reassemble the template with the added newlines
     return '\n'.join(lines)
+
+def generate_comments(spaces_count, html_format=False):
+    """
+    Generates random comment lines with a specified number of spaces prefixed,
+    each containing a random number of random strings. The format of the comments
+    can be either HTML or VBScript based on the html_format flag.
+    
+    :param spaces_count: int - Number of spaces to prepend to each comment line.
+    :param html_format: bool - If True, returns HTML formatted comments, else VBScript comments.
+    :return: str - A string of one or more randomly generated comment lines.
+    """
+    # Random number of comment lines to generate
+    number_of_comments = random.randint(1, 50)
+    
+    # Generate the comment block
+    comment_block = ""
+    space_prefix = ' ' * spaces_count
+    
+    for _ in range(number_of_comments):
+        # Random number of strings to generate per comment line
+        number_of_strings = random.randint(1, 20) 
+        
+        # Collect multiple random strings
+        comment_strings = ' '.join(random_string() for _ in range(number_of_strings))
+        
+        if html_format:
+            comment_block += f"{space_prefix}<!-- {comment_strings} -->\n"
+        else:
+            comment_block += f"{space_prefix}' {comment_strings}\n"
+    
+    return comment_block.strip()
 
 def obfuscate_code(key):
     # Find and replace all template variables
@@ -82,6 +113,13 @@ def obfuscate_code(key):
         'Enter_Encrypted_Command': random_string(),
         'inputSize': random.randint(5, 250),
         'SubmitValue': random_string(),
+        'vbComment': generate_comments(0),
+        'vbComment4': generate_comments(4),
+        'vbComment8': generate_comments(8),
+        'vbComment12': generate_comments(12),
+        'htmlComment': generate_comments(0, html_format=True),
+        'htmlComment4': generate_comments(4, html_format=True),
+        'htmlComment8': generate_comments(8, html_format=True),
     }
 
     # Load the template and render it with the variables

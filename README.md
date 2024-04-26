@@ -2,7 +2,7 @@
 
 ![ninja](img/ninja.webp)
 
-A heavily obfuscated `Windows` based `ASP` web shell generation tool utilizing the power of Python's `Jinja2` templating engine. Generates a web shell with randomized variable/function names and HTML strings of random lengths, XOR encrypted strings with base64 encoding, a random amount of newlines, and a random encryption key per generation. Tested as bypassing the latest version of `Windows Defender` as of `04/22/2024` with `Cloud-delivered protection` enabled.
+A heavily obfuscated `Windows` based `ASP` web shell generation tool utilizing the power of Python's `Jinja2` templating engine. Generates a web shell with randomized variable/function names and HTML strings of random lengths, XOR encrypted strings with base64 encoding, a random amount of newlines, a random amount of `VBScript/HTML` comments with a random amount of random strings, and a random encryption key per generation. Tested as bypassing the latest version of `Windows Defender` as of `04/22/2024` with `Cloud-delivered protection` enabled.
 
 ## Installation
 
